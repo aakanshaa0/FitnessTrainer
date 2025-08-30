@@ -45,126 +45,140 @@
 
 :root {
   /* Base Variables */
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
-  /* Cyberpunk Theme Colors */
-  --cyber-black: #000000;
-  --cyber-dark: #0a0c14;
-  --cyber-blue-bright: #18cef2; 
-  --cyber-blue: #1089bd; 
-  --cyber-blue-dark: #0b4a7d; 
-  --cyber-blue-glow: #38bdf8; 
-  --cyber-accent: #0ff4;
+  /* Modern Dark Theme Colors */
+  --pure-black: #000000;
+  --dark-black: #0a0a0a;
+  --charcoal: #1a1a1a;
+  --dark-gray: #2a2a2a;
+  --medium-gray: #3a3a3a;
+  --light-gray: #4a4a4a;
+  
+  /* Light Green Accents */
+  --neon-green: #00ff88;
+  --bright-green: #00ff9d;
+  --light-green: #00ffb3;
+  --mint-green: #00ffc8;
+  --soft-green: #00ffdd;
+  --pale-green: #00fff2;
+  
+  /* White Variations */
+  --pure-white: #ffffff;
+  --bright-white: #f8f9fa;
+  --soft-white: #f1f3f4;
+  --warm-white: #fafafa;
+  --cool-white: #f5f5f5;
 
   /* Background */
-  --background: var(--cyber-dark);
-  --foreground: #f2f2f2;
+  --background: var(--pure-black);
+  --foreground: var(--pure-white);
 
   /* Card and popover elements */
-  --card: #111827;
-  --card-foreground: #f2f2f2;
-  --popover: #111827;
-  --popover-foreground: #f2f2f2;
+  --card: var(--charcoal);
+  --card-foreground: var(--pure-white);
+  --popover: var(--charcoal);
+  --popover-foreground: var(--pure-white);
 
-  /* Primary - Main blue */
-  --primary: var(--cyber-blue-bright);
-  --primary-foreground: var(--cyber-dark);
+  /* Primary - Bright green */
+  --primary: var(--neon-green);
+  --primary-foreground: var(--pure-black);
 
-  /* Secondary - Darker blue */
-  --secondary: var(--cyber-blue);
-  --secondary-foreground: #ffffff;
+  /* Secondary - Light green */
+  --secondary: var(--light-green);
+  --secondary-foreground: var(--pure-black);
 
-  /* Accent - Light blue with glow */
-  --accent: var(--cyber-blue-glow);
-  --accent-foreground: var(--cyber-dark);
+  /* Accent - Mint green */
+  --accent: var(--mint-green);
+  --accent-foreground: var(--pure-black);
 
   /* Muted elements */
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
+  --muted: var(--dark-gray);
+  --muted-foreground: var(--light-gray);
 
   /* System colors */
-  --destructive: #ef4444;
-  --border: rgba(24, 206, 242, 0.2);
-  --input: rgba(24, 206, 242, 0.2);
-  --ring: var(--cyber-blue);
+  --destructive: #ff4757;
+  --border: var(--medium-gray);
+  --input: var(--medium-gray);
+  --ring: var(--neon-green);
 
-  /* Chart colors - cyberpunk theme */
-  --chart-1: var(--cyber-blue-bright);
-  --chart-2: #3b82f6;
-  --chart-3: var(--cyber-blue);
-  --chart-4: #06b6d4;
-  --chart-5: #0284c7;
+  /* Chart colors */
+  --chart-1: var(--neon-green);
+  --chart-2: var(--bright-green);
+  --chart-3: var(--light-green);
+  --chart-4: var(--mint-green);
+  --chart-5: var(--soft-green);
 
   /* Sidebar colors */
-  --sidebar: var(--cyber-dark);
-  --sidebar-foreground: #f2f2f2;
-  --sidebar-primary: var(--cyber-blue-bright);
-  --sidebar-primary-foreground: var(--cyber-dark);
-  --sidebar-accent: var(--cyber-blue);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(24, 206, 242, 0.2);
-  --sidebar-ring: var(--cyber-blue);
+  --sidebar: var(--charcoal);
+  --sidebar-foreground: var(--pure-white);
+  --sidebar-primary: var(--neon-green);
+  --sidebar-primary-foreground: var(--pure-black);
+  --sidebar-accent: var(--light-green);
+  --sidebar-accent-foreground: var(--pure-black);
+  --sidebar-border: var(--medium-gray);
+  --sidebar-ring: var(--neon-green);
 
-  /* Custom Cyberpunk UI Variables */
-  --cyber-grid-color: rgba(24, 206, 242, 0.05);
-  --cyber-glow-primary: rgba(24, 206, 242, 0.2);
-  --cyber-glow-strong: rgba(24, 206, 242, 0.5);
-  --cyber-line-color: rgba(24, 206, 242, 0.3);
-  --cyber-terminal-bg: rgba(0, 0, 0, 0.7);
-  --cyber-text-bright: #ffffff;
-  --cyber-text-muted: rgba(242, 242, 242, 0.7);
-  --cyber-text-dim: rgba(242, 242, 242, 0.5);
+  /* Custom UI Variables */
+  --glow-primary: rgba(0, 255, 136, 0.3);
+  --glow-secondary: rgba(0, 255, 157, 0.2);
+  --glow-accent: rgba(0, 255, 200, 0.15);
+  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  --shadow-strong: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --gradient-primary: linear-gradient(135deg, var(--neon-green), var(--bright-green));
+  --gradient-secondary: linear-gradient(135deg, var(--light-green), var(--mint-green));
 }
 
 .dark {
   /* Background */
-  --background: var(--cyber-dark);
-  --foreground: #f2f2f2;
+  --background: var(--pure-black);
+  --foreground: var(--pure-white);
 
   /* Card and popover elements */
-  --card: #111827;
-  --card-foreground: #f2f2f2;
-  --popover: #111827;
-  --popover-foreground: #f2f2f2;
+  --card: var(--charcoal);
+  --card-foreground: var(--pure-white);
+  --popover: var(--charcoal);
+  --popover-foreground: var(--pure-white);
 
-  /* Primary - Main blue */
-  --primary: var(--cyber-blue-bright);
-  --primary-foreground: var(--cyber-dark);
+  /* Primary - Bright green */
+  --primary: var(--neon-green);
+  --primary-foreground: var(--pure-black);
 
-  /* Secondary - Darker blue */
-  --secondary: var(--cyber-blue);
-  --secondary-foreground: #ffffff;
+  /* Secondary - Light green */
+  --secondary: var(--light-green);
+  --secondary-foreground: var(--pure-black);
 
-  /* Accent - Light blue with glow */
-  --accent: var(--cyber-blue-glow);
-  --accent-foreground: var(--cyber-dark);
+  /* Accent - Mint green */
+  --accent: var(--mint-green);
+  --accent-foreground: var(--pure-black);
 
   /* Muted elements */
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
+  --muted: var(--dark-gray);
+  --muted-foreground: var(--light-gray);
 
   /* System colors */
-  --destructive: #ef4444;
-  --border: rgba(24, 206, 242, 0.2);
-  --input: rgba(24, 206, 242, 0.2);
-  --ring: var(--cyber-blue);
+  --destructive: #ff4757;
+  --border: var(--medium-gray);
+  --input: var(--medium-gray);
+  --ring: var(--neon-green);
 
-  /* Chart colors - cyberpunk theme */
-  --chart-1: var(--cyber-blue-bright);
-  --chart-2: #3b82f6;
-  --chart-3: var(--cyber-blue);
-  --chart-4: #06b6d4;
-  --chart-5: #0284c7;
+  /* Chart colors */
+  --chart-1: var(--neon-green);
+  --chart-2: var(--bright-green);
+  --chart-3: var(--light-green);
+  --chart-4: var(--mint-green);
+  --chart-5: var(--soft-green);
 
   /* Sidebar colors */
-  --sidebar: var(--cyber-dark);
-  --sidebar-foreground: #f2f2f2;
-  --sidebar-primary: var(--cyber-blue-bright);
-  --sidebar-primary-foreground: var(--cyber-dark);
-  --sidebar-accent: var(--cyber-blue);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(24, 206, 242, 0.2);
-  --sidebar-ring: var(--cyber-blue);
+  --sidebar: var(--charcoal);
+  --sidebar-foreground: var(--pure-white);
+  --sidebar-primary: var(--neon-green);
+  --sidebar-primary-foreground: var(--pure-black);
+  --sidebar-accent: var(--light-green);
+  --sidebar-accent-foreground: var(--pure-black);
+  --sidebar-border: var(--medium-gray);
+  --sidebar-ring: var(--neon-green);
 }
 
 @layer base {
@@ -173,11 +187,32 @@
   }
   body {
     @apply bg-background text-foreground;
+    background: linear-gradient(135deg, var(--pure-black) 0%, var(--charcoal) 100%);
+    min-height: 100vh;
   }
+  
   /* https://tailwindcss.com/docs/upgrade-guide#buttons-use-the-default-cursor */
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--charcoal);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--neon-green);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--bright-green);
   }
 }
 
@@ -199,12 +234,53 @@
   }
 }
 
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--glow-primary);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--glow-primary), 0 0 30px var(--glow-secondary);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
 .animate-scanline {
   animation: scanline 8s linear infinite;
 }
 
 .animate-slow-spin {
   animation: slow-spin 12s linear infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, var(--glow-primary), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
 }
 
 @keyframes sound-wave {
@@ -226,12 +302,92 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.5s ease-in-out forwards;
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Modern card styles */
+.modern-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.modern-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  border-color: var(--neon-green);
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Neon text effect */
+.neon-text {
+  text-shadow: 0 0 5px var(--neon-green), 0 0 10px var(--neon-green), 0 0 15px var(--neon-green);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Modern button styles */
+.btn-modern {
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px 24px;
+  color: var(--pure-black);
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  box-shadow: 0 0 20px var(--glow-primary);
+}
+
+/* Input styles */
+.input-modern {
+  background: var(--charcoal);
+  border: 2px solid var(--medium-gray);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  color: var(--pure-white);
+  transition: all 0.3s ease;
+}
+
+.input-modern:focus {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 0 3px var(--glow-primary);
+  outline: none;
+}
+
+/* Grid background */
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
