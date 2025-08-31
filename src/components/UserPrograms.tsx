@@ -1,22 +1,17 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  ArrowRight,
   Flame,
   HeartPulse,
   Leaf,
   Moon,
-  Sun,
   Zap,
   Dumbbell,
-  Apple,
-  Shield,
-  Calendar,
-  Clock as ClockIcon,
   TrendingUp,
-  Target,
-  CheckCircle2
+  Calendar,
+  Apple,
+  CheckCircle2,
+  ArrowRight
 } from "lucide-react";
 import { USER_PROGRAMS } from "@/constants";
 

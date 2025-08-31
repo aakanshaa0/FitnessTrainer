@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
     const workoutPlanText = workoutResult.response.text();
     console.log('Workout plan response from Gemini:', workoutPlanText);
 
-    //Validate Input coming from AI
+    // VALIDATE THE INPUT COMING FROM AI
     let workoutPlan: WorkoutPlan;
     try {
       workoutPlan = JSON.parse(workoutPlanText);
@@ -238,7 +238,6 @@ export async function POST(request: NextRequest) {
     const dietPlanText = dietResult.response.text();
     console.log('Diet plan response from Gemini:', dietPlanText);
 
-    //Validate Input Coming from AI
     let dietPlan: DietPlan;
     try {
       dietPlan = JSON.parse(dietPlanText);
@@ -255,7 +254,6 @@ export async function POST(request: NextRequest) {
     dietPlan = validateDietPlan(dietPlan);
 
     console.log('Saving to MongoDB...');
-    //Save to MongoDB
     const client = await clientPromise;
     const db = client.db("fitness");
     const plansCollection = db.collection("plans");

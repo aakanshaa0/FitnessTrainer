@@ -7,23 +7,6 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-type WeeklySchedule = {
-  day: string;
-  focus: string;
-  duration: string;
-};
-
-type MealExample = {
-  meal: string;
-  example: string;
-};
-
-type Macros = {
-  protein: string;
-  carbs: string;
-  fats: string;
-};
-
 interface FitnessData {
   age?: number;
   height?: string;
@@ -42,10 +25,8 @@ interface Message {
 }
 
 interface WorkoutPlan {
-  title: string;
-  weekly_schedule: WeeklySchedule[];
-  description: string;
-  exercises?: Array<{
+  schedule: string[];
+  exercises: Array<{
     day: string;
     routines: Array<{
       name: string;
@@ -59,12 +40,8 @@ interface WorkoutPlan {
 }
 
 interface DietPlan {
-  title: string;
-  daily_calories: string;
-  macros: Macros;
-  meal_examples: MealExample[];
-  description: string;
-  meals?: Array<{
+  dailyCalories: number;
+  meals: Array<{
     name: string;
     foods: string[];
   }>;
@@ -102,18 +79,18 @@ const GenerateProgramPage = () => {
 
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
-  //Voice call handler
   const extractFitnessData = (transcript: string) => {
     const lowerTranscript = transcript.toLowerCase();
     
     console.log("Processing transcript:", transcript);
     
-    //Extract age
     if (!fitnessData.age) {
       const agePatterns = [
         /(\d+)\s*(?:years?\s*old|y\.?o\.?|age)/i,
         /age\s*(?:is\s*)?(\d+)/i,
-        /(\d+)\s*(?:years?)/i
+        /(\d+)\s*(?:years?)/i,
+        /^(\d+)$/i,
+        /(\d+)\s*$/i,
       ];
       
       for (const pattern of agePatterns) {
@@ -126,31 +103,27 @@ const GenerateProgramPage = () => {
       }
     }
 
-    //Extract height
-    if (!fitnessData.height) {
-      //Handle feet and inches format
+    if(!fitnessData.height){
       const feetInchesMatch = transcript.match(/(\d+)\s*(?:foot|feet|ft|')\s*(\d+)\s*(?:inch|inches|in|")/i);
-      if (feetInchesMatch) {
+      if(feetInchesMatch){
         const feet = feetInchesMatch[1];
         const inches = feetInchesMatch[2];
         console.log("Height parsed (feet-inches):", feet, inches);
         setFitnessData(prev => ({ ...prev, height: `${feet}'${inches}"` }));
       } 
-      else {
-        //Handle format like 5 4
+      else{
         const shortMatch = transcript.match(/(\d+)\s+(\d+)/);
         if (shortMatch && parseInt(shortMatch[1]) <= 8 && parseInt(shortMatch[2]) <= 12) {
-          //Make sure this looks like height & not other measurements
           const context = transcript.toLowerCase();
           if (context.includes('height') || context.includes('tall') || context.includes('foot') || 
               context.includes('inch') || context.includes('feet') || context.includes('cm')) {
-            const feet = shortMatch[1];
-            const inches = shortMatch[2];
-            console.log("Height parsed (short):", feet, inches);
-            setFitnessData(prev => ({ ...prev, height: `${feet}'${inches}"` }));
+          const feet = shortMatch[1];
+          const inches = shortMatch[2];
+          console.log("Height parsed (short):", feet, inches);
+          setFitnessData(prev => ({ ...prev, height: `${feet}'${inches}"` }));
           }
-        } else {
-          //Handle other formats
+        } 
+        else {
           const heightMatch = transcript.match(/(\d+(?:\.\d+)?)\s*(?:cm|centimeters?|feet?|ft|inches?|in|'|")/i);
           if (heightMatch) {
             console.log("Height parsed (other):", heightMatch[0]);
@@ -164,7 +137,6 @@ const GenerateProgramPage = () => {
     if (!fitnessData.weight) {
       console.log("Looking for weight in transcript:", transcript);
       
-      //Handle various weight formats with more specific patterns
       const weightPatterns = [
         /(\d+(?:\.\d+)?)\s*(?:kg|kilograms?|lbs?|pounds?|lb|pound)/i,
         /weight\s*(?:is\s*)?(\d+(?:\.\d+)?)\s*(?:kg|kilograms?|lbs?|pounds?|lb|pound)/i,
@@ -173,11 +145,11 @@ const GenerateProgramPage = () => {
       
       for (const pattern of weightPatterns) {
         const weightMatch = transcript.match(pattern);
-        if (weightMatch) {
+      if (weightMatch) {
           const weight = weightMatch[1];
           if (parseInt(weight) >= 30 && parseInt(weight) <= 500) {
             console.log("Weight parsed:", weightMatch[0]);
-            setFitnessData(prev => ({ ...prev, weight: weightMatch[0] }));
+        setFitnessData(prev => ({ ...prev, weight: weightMatch[0] }));
             break;
           }
         }
@@ -203,26 +175,22 @@ const GenerateProgramPage = () => {
       if (lowerTranscript.includes("weight loss") || lowerTranscript.includes("lose weight") || lowerTranscript.includes("slim down")) {
         setFitnessData(prev => ({ ...prev, fitnessGoal: "weight loss" }));
         console.log("Fitness goal extracted: weight loss");
-      } 
-      else if (lowerTranscript.includes("muscle gain") || lowerTranscript.includes("build muscle") || lowerTranscript.includes("get stronger")) {
+      } else if (lowerTranscript.includes("muscle gain") || lowerTranscript.includes("build muscle") || lowerTranscript.includes("get stronger")) {
         setFitnessData(prev => ({ ...prev, fitnessGoal: "muscle gain" }));
         console.log("Fitness goal extracted: muscle gain");
-      } 
-      else if (lowerTranscript.includes("endurance") || lowerTranscript.includes("stamina") || lowerTranscript.includes("cardio")) {
+      } else if (lowerTranscript.includes("endurance") || lowerTranscript.includes("stamina") || lowerTranscript.includes("cardio")) {
         setFitnessData(prev => ({ ...prev, fitnessGoal: "endurance" }));
         console.log("Fitness goal extracted: endurance");
-      } 
-      else if (lowerTranscript.includes("strength") || lowerTranscript.includes("power")) {
+      } else if (lowerTranscript.includes("strength") || lowerTranscript.includes("power")) {
         setFitnessData(prev => ({ ...prev, fitnessGoal: "strength" }));
         console.log("Fitness goal extracted: strength");
-      } 
-      else if (lowerTranscript.includes("flexibility") || lowerTranscript.includes("mobility") || lowerTranscript.includes("stretching")) {
+      } else if (lowerTranscript.includes("flexibility") || lowerTranscript.includes("mobility") || lowerTranscript.includes("stretching")) {
         setFitnessData(prev => ({ ...prev, fitnessGoal: "flexibility" }));
         console.log("Fitness goal extracted: flexibility");
       }
     }
 
-    // Extract workout days
+    //Extract workout days
     if (!fitnessData.workoutDays) {
       const daysMatch = transcript.match(/(\d+)\s*(?:days?|times?|per week)/i);
       if (daysMatch) {
@@ -241,8 +209,7 @@ const GenerateProgramPage = () => {
           lowerTranscript.includes("no pain") || lowerTranscript.includes("nothing")) {
         setFitnessData(prev => ({ ...prev, injuries: "None" }));
         console.log("Injuries extracted: None");
-      } 
-      else if (lowerTranscript.includes("injury") || lowerTranscript.includes("pain") || 
+      } else if (lowerTranscript.includes("injury") || lowerTranscript.includes("pain") || 
           lowerTranscript.includes("limitation") || lowerTranscript.includes("condition") ||
           lowerTranscript.includes("hurt") || lowerTranscript.includes("sore")) {
         setFitnessData(prev => ({ ...prev, injuries: transcript }));
@@ -271,21 +238,27 @@ const GenerateProgramPage = () => {
       if (lowerTranscript.includes("sedentary") || lowerTranscript.includes("desk job") || lowerTranscript.includes("mostly sitting")) {
         setFitnessData(prev => ({ ...prev, activityLevel: "sedentary" }));
         console.log("Activity level extracted: sedentary");
-      } else if (lowerTranscript.includes("lightly active") || lowerTranscript.includes("some walking") || lowerTranscript.includes("occasional exercise")) {
+      } else if (lowerTranscript.includes("lightly active") || lowerTranscript.includes("some walking") || lowerTranscript.includes("occasional exercise") || lowerTranscript.includes("slightly")) {
         setFitnessData(prev => ({ ...prev, activityLevel: "lightly active" }));
         console.log("Activity level extracted: lightly active");
-      } else if (lowerTranscript.includes("moderately active") || lowerTranscript.includes("regular exercise") || lowerTranscript.includes("active lifestyle")) {
+      } else if (lowerTranscript.includes("moderately active") || lowerTranscript.includes("regular exercise") || lowerTranscript.includes("active lifestyle") || lowerTranscript.includes("moderate")) {
         setFitnessData(prev => ({ ...prev, activityLevel: "moderately active" }));
         console.log("Activity level extracted: moderately active");
-      } else if (lowerTranscript.includes("very active") || lowerTranscript.includes("intense exercise") || lowerTranscript.includes("athlete")) {
+      } else if (lowerTranscript.includes("very active") || lowerTranscript.includes("intense exercise") || lowerTranscript.includes("athlete") || 
+                 (lowerTranscript.includes("7") && lowerTranscript.includes("active"))) {
         setFitnessData(prev => ({ ...prev, activityLevel: "very active" }));
         console.log("Activity level extracted: very active");
       }
     }
 
-    //Log the current state for debugging
     console.log("Current fitness data:", fitnessData);
     console.log("Total fields collected:", Object.keys(fitnessData).length);
+    
+    console.log("Looking for missing fields:");
+    const requiredFields = ['age', 'height', 'weight', 'fitnessLevel', 'fitnessGoal', 'workoutDays', 'injuries', 'dietaryRestrictions', 'activityLevel'];
+    const missingFields = requiredFields.filter(field => !fitnessData[field as keyof FitnessData]);
+    console.log("Missing:", missingFields);
+    console.log("Current state keys:", Object.keys(fitnessData));
   };
 
   const handleGeneratePlan = async () => {
@@ -302,90 +275,97 @@ const GenerateProgramPage = () => {
       return;
     }
     
-    //Check if we have all required data
     const requiredFields = ['age', 'height', 'weight', 'fitnessLevel', 'fitnessGoal', 'workoutDays', 'injuries', 'dietaryRestrictions', 'activityLevel'];
     const missingFields = requiredFields.filter(field => !fitnessData[field as keyof FitnessData]);
+    const collectedFields = requiredFields.filter(field => fitnessData[field as keyof FitnessData]);
     
-    if (missingFields.length > 0) {
-      console.log("Missing fields:", missingFields);
+    console.log("Collected fields:", collectedFields);
+    console.log("Missing fields:", missingFields);
+    console.log("Progress:", `${collectedFields.length}/${requiredFields.length}`);
+    
+    //If we have at least 7 out of 9 fields, we can generate a basic plan
+    if (collectedFields.length >= 7) {
+      console.log("Sufficient data collected, proceeding with plan generation...");
+      
       setMessages(prev => [...prev, {
-        content: `Missing required information: ${missingFields.join(', ')}. Please complete all fields first.`,
+        content: `Great! I have ${collectedFields.length} out of 9 fields. I'll generate a plan based on what you've provided. ${missingFields.length > 0 ? `Missing: ${missingFields.join(', ')}` : ''}`,
         role: "assistant"
       }]);
-      return;
-    }
+      
+      //Set default values for missing fields
+      const planData = { ...fitnessData };
+      
+      if (!planData.age) {
+        planData.age = 25; //Default age
+        console.log("Using default age: 25");
+      }
+      
+      if (!planData.injuries) {
+        planData.injuries = "None"; //Default to no injuries
+        console.log("Using default injuries: None");
+      }
+      
+      setIsGenerating(true);
+      
+      try {
+        console.log("Sending request to /api/generate-program with data:", planData);
+        const response = await fetch('/api/generate-program', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            ...planData,
+          }),
+        });
 
-    //Validate data values are reasonable
-    if (fitnessData.age && (fitnessData.age < 10 || fitnessData.age > 100)) {
-      console.log("Invalid age:", fitnessData.age);
-      setMessages(prev => [...prev, {
-        content: `Please enter a valid age between 10 and 100 years.`,
-        role: "assistant"
-      }]);
-      return;
-    }
-
-    if (fitnessData.workoutDays && (fitnessData.workoutDays < 1 || fitnessData.workoutDays > 7)) {
-      console.log("Invalid workout days:", fitnessData.workoutDays);
-      setMessages(prev => [...prev, {
-        content: `Please enter a valid number of workout days between 1 and 7.`,
-        role: "assistant"
-      }]);
-      return;
-    }
-    
-    setIsGenerating(true);
-    
-    try {
-      console.log("Sending request to /api/generate-program");
-      const response = await fetch('/api/generate-program', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: user.id,
-          ...fitnessData,
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Fitness plan generated:', result);
-        
-        // Store the generated plan
-        setGeneratedPlan(result);
-        
-        // Add success message
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Fitness plan generated:', result);
+          
+          setGeneratedPlan(result);
+          
+          setMessages(prev => [...prev, {
+            content: "Perfect! I've generated your personalized fitness and diet plan based on the information provided. Here it is:",
+            role: "assistant"
+          }]);
+        } 
+        else {
+          const errorText = await response.text();
+          console.error('API Error:', response.status, errorText);
+          throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
+      } 
+      catch (error) {
+        console.error('Error generating plan:', error);
         setMessages(prev => [...prev, {
-          content: "Perfect! I've generated your personalized fitness and diet plan. Here it is:",
+          content: `I apologize, but there was an error generating your fitness plan: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
           role: "assistant"
         }]);
       } 
-      else {
-        const errorText = await response.text();
-        console.error('API Error:', response.status, errorText);
-        throw new Error(`API Error: ${response.status} - ${errorText}`);
+      finally {
+        setIsGenerating(false);
+        setCallEnded(true);
       }
     } 
-    catch (error) {
-      console.error('Error generating plan:', error);
+    else {
+      console.log("Insufficient data collected, cannot generate plan");
       setMessages(prev => [...prev, {
-        content: `I apologize, but there was an error generating your fitness plan: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+        content: `I need more information to generate your plan. Currently have ${collectedFields.length}/9 fields. Please provide: ${missingFields.join(', ')}`,
         role: "assistant"
       }]);
-    } 
-    finally {
-      setIsGenerating(false);
-      setCallEnded(true);
+      
+      return;
     }
+
+
   };
 
   const toggleCall = async () => {
     if (callActive) {
       vapi.stop();
-    } 
-    else {
+    } else {
       try {
         setConnecting(true);
         setMessages([]);
@@ -393,17 +373,20 @@ const GenerateProgramPage = () => {
         setFitnessData({});
         console.log("Reset fitness data for new call");
 
+        //console.log("Starting Vapi call with:");
+        //console.log("API Key:", process.env.NEXT_PUBLIC_VAPI_API_KEY ? "Set" : "Missing");
+        //console.log("Assistant ID:", process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID ? "Set" : "Missing");
+        //console.log("Assistant ID value:", process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID);
+
         await vapi.start(process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID!);
         console.log("Vapi call started successfully");
-      } 
-      catch (error) {
+      } catch (error) {
         console.log("Failed to start call", error);
         setConnecting(false);
       }
     }
   };
 
-  //Auto scroll messages
   useEffect(() => {
     if (messageContainerRef.current) {
       messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
@@ -435,7 +418,7 @@ const GenerateProgramPage = () => {
     }
   }, [fitnessData, callActive]);
 
-  //Setup event listeners for vapi
+  //Event listeners for vapi
   useEffect(() => {
     const handleCallStart = () => {
       console.log("Call started");
@@ -450,14 +433,23 @@ const GenerateProgramPage = () => {
       setConnecting(false);
       setIsSpeaking(false);
       
-      if (Object.keys(fitnessData).length >= 9) {
-        console.log("Call ended with all data, generating plan...");
+      const requiredFields = ['age', 'height', 'weight', 'fitnessLevel', 'fitnessGoal', 'workoutDays', 'injuries', 'dietaryRestrictions', 'activityLevel'];
+      const collectedFields = requiredFields.filter(field => fitnessData[field as keyof FitnessData]);
+      
+      if (collectedFields.length >= 7) {
+        console.log(`Call ended with ${collectedFields.length}/9 fields, generating plan...`);
         setTimeout(() => {
           handleGeneratePlan();
         }, 1000);
       } else {
-        console.log("Call ended without complete data");
+        console.log(`Call ended with only ${collectedFields.length}/9 fields, not enough data`);
         setCallEnded(true);
+        
+        const missingFields = requiredFields.filter(field => !fitnessData[field as keyof FitnessData]);
+        setMessages(prev => [...prev, {
+          content: `The call ended, but I need more information to generate your plan. Currently have ${collectedFields.length}/9 fields. Missing: ${missingFields.join(', ')}. You can use the manual form below to complete the missing information.`,
+          role: "assistant"
+        }]);
       }
     };
 
@@ -476,7 +468,6 @@ const GenerateProgramPage = () => {
         const newMessage: Message = { content: message.transcript, role: message.role };
         setMessages((prev) => [...prev, newMessage]);
         
-        //Try to extract fitness data from user responses
         if (message.role === "user") {
           extractFitnessData(message.transcript);
         }
@@ -507,17 +498,16 @@ const GenerateProgramPage = () => {
         .off("message", handleMessage)
         .off("error", handleError);
     };
-  }, []); 
-
+  }, []);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white grid-bg pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white grid-bg pt-24">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/*Hero Section*/}
         <div className="text-center mb-12 animate-fadeIn">
           <div className="relative inline-block">
             <h1 className="text-6xl font-bold mb-4 gradient-text">
               Generate Your
-            </h1>
+          </h1>
             <div className="absolute -inset-1 bg-gradient-to-r from-green-400 to-green-600 rounded-lg blur opacity-25 animate-glow-pulse"></div>
           </div>
           <h2 className="text-5xl font-bold neon-text mb-4">
@@ -529,14 +519,13 @@ const GenerateProgramPage = () => {
           </p>
         </div>
 
-        {/*Video Call Area*/}
+        {/*Call Area*/}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/*AI Card*/}
+          {/*AI Assistant Card*/}
           <Card className="glass border-2 border-green-400/20 rounded-2xl overflow-hidden relative group hover:border-green-400/40 transition-all duration-500 animate-float">
             <div className="aspect-video flex flex-col items-center justify-center p-8 relative">
               <div className="absolute inset-0 bg-gradient-to-br from-green-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               
-              {/*Voice Animation*/}
               <div
                 className={`absolute inset-0 ${
                   isSpeaking ? "opacity-40" : "opacity-0"
@@ -558,7 +547,7 @@ const GenerateProgramPage = () => {
                 </div>
               </div>
 
-              {/*Image*/}
+              {/*AI Image*/}
               <div className="relative size-36 mb-6 group-hover:scale-110 transition-transform duration-500">
                 <div
                   className={`absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 rounded-full blur-xl ${
@@ -569,17 +558,16 @@ const GenerateProgramPage = () => {
                 <div className="relative w-full h-full rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center border-2 border-green-400/30 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-transparent"></div>
                   <img
-                    src="/ai-avatar.jpg"
+                    src="/hero-ai3.webp"
                     alt="AI Assistant"
                     className="w-full h-full object-cover"
                   />
                 </div>
               </div>
 
-              <h2 className="text-2xl font-bold text-white mb-2 neon-text">FitAI Coach</h2>
-              <p className="text-green-400 font-medium">Your Personal Fitness Guide</p>
+              <h2 className="text-2xl font-bold text-white mb-2 neon-text">CodeFlex AI</h2>
+              <p className="text-green-400 font-medium">Fitness & Diet Coach</p>
 
-              {/*Speaking*/}
               <div
                 className={`mt-6 flex items-center gap-3 px-4 py-2 rounded-full glass border ${
                   isSpeaking ? "border-green-400 shadow-lg shadow-green-400/25" : "border-gray-600"
@@ -623,10 +611,9 @@ const GenerateProgramPage = () => {
 
               <h2 className="text-2xl font-bold text-white mb-2">You</h2>
               <p className="text-gray-400 font-medium">
-                {user ? [user.firstName, user.lastName].filter(Boolean).join(' ') : "Guest"}
+                {user ? (user.firstName + " " + (user.lastName || "")).trim() : "Guest"}
               </p>
 
-              {/*User Status*/}
               <div className="mt-6 flex items-center gap-3 px-4 py-2 rounded-full glass border border-gray-600/30">
                 <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
                 <span className="text-sm font-medium text-gray-300">Ready</span>
@@ -638,38 +625,34 @@ const GenerateProgramPage = () => {
         {/*Input Form*/}
         <Card className="glass border-2 border-green-400/20 rounded-2xl p-8 mb-12 group hover:border-green-400/40 transition-all duration-500">
           <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold mb-4 gradient-text">Enter Your Information</h3>
+            <h3 className="text-3xl font-bold mb-4 gradient-text">Generate Fitness Plan</h3>
             <p className="text-gray-300 text-lg max-w-3xl mx-auto">
-              Fill in your details to generate a personalized fitness and diet plan
+              Use this form to create Fitness Plan if or you can call the Voice Agent
             </p>
-          </div>
+                </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div className="space-y-2">
+                <div className="space-y-2">
               <label className="block text-sm font-semibold text-green-400">Age</label>
-              <input
-                type="number"
-                placeholder="e.g., 25"
+                      <input
+                        type="number"
+                        placeholder="e.g., 25"
                 className="input-modern w-full"
                 value={fitnessData.age || ''}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setFitnessData(prev => ({ ...prev, age: parseInt(e.target.value) || undefined }));
-                }}
-              />
-            </div>
+                onChange={(e) => setFitnessData(prev => ({ ...prev, age: parseInt(e.target.value) || undefined }))}
+                      />
+                    </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-green-400">Height</label>
-              <input
-                type="text"
-                placeholder="e.g., 5'8 or 170 cm"
+                      <input
+                        type="text"
+                placeholder="e.g., 5'8&quot; or 170 cm"
                 className="input-modern w-full"
                 value={fitnessData.height || ''}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setFitnessData(prev => ({ ...prev, height: e.target.value }));
-                }}
-              />
-            </div>
+                onChange={(e) => setFitnessData(prev => ({ ...prev, height: e.target.value }))}
+                      />
+                    </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-green-400">Weight</label>
@@ -678,107 +661,95 @@ const GenerateProgramPage = () => {
                 placeholder="e.g., 150 lbs or 68 kg"
                 className="input-modern w-full"
                 value={fitnessData.weight || ''}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setFitnessData(prev => ({ ...prev, weight: e.target.value }));
-                }}
+                onChange={(e) => setFitnessData(prev => ({ ...prev, weight: e.target.value }))}
               />
             </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-green-400">Fitness Level</label>
-              <select
+                      <select
                 className="input-modern w-full"
                 value={fitnessData.fitnessLevel || ''}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  setFitnessData(prev => ({ ...prev, fitnessLevel: e.target.value }));
-                }}
-              >
+                        onChange={(e) => setFitnessData(prev => ({ ...prev, fitnessLevel: e.target.value }))}
+                      >
                 <option value="">Select fitness level</option>
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-              </select>
-            </div>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                      </select>
+                    </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-green-400">Fitness Goal</label>
-              <select
+                      <select
                 className="input-modern w-full"
                 value={fitnessData.fitnessGoal || ''}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  setFitnessData(prev => ({ ...prev, fitnessGoal: e.target.value }));
-                }}
-              >
+                        onChange={(e) => setFitnessData(prev => ({ ...prev, fitnessGoal: e.target.value }))}
+                      >
                 <option value="">Select fitness goal</option>
-                <option value="weight loss">Weight Loss</option>
-                <option value="muscle gain">Muscle Gain</option>
-                <option value="endurance">Endurance</option>
-                <option value="strength">Strength</option>
-                <option value="flexibility">Flexibility</option>
-              </select>
-            </div>
+                        <option value="weight loss">Weight Loss</option>
+                        <option value="muscle gain">Muscle Gain</option>
+                        <option value="endurance">Endurance</option>
+                        <option value="strength">Strength</option>
+                        <option value="flexibility">Flexibility</option>
+                      </select>
+                    </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-green-400">Workout Days per Week</label>
-              <select
+                      <select
                 className="input-modern w-full"
                 value={fitnessData.workoutDays || ''}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  setFitnessData(prev => ({ ...prev, workoutDays: parseInt(e.target.value) || undefined }));
-                }}
-              >
+                onChange={(e) => setFitnessData(prev => ({ ...prev, workoutDays: parseInt(e.target.value) || undefined }))}
+                      >
                 <option value="">Select workout days</option>
-                <option value="1">1 day</option>
-                <option value="2">2 days</option>
-                <option value="3">3 days</option>
-                <option value="4">4 days</option>
-                <option value="5">5 days</option>
-                <option value="6">6 days</option>
-                <option value="7">7 days</option>
-              </select>
-            </div>
+                        <option value="1">1 day</option>
+                        <option value="2">2 days</option>
+                        <option value="3">3 days</option>
+                        <option value="4">4 days</option>
+                        <option value="5">5 days</option>
+                        <option value="6">6 days</option>
+                        <option value="7">7 days</option>
+                      </select>
+                    </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-green-400">Activity Level</label>
-              <select
+                      <select
                 className="input-modern w-full"
                 value={fitnessData.activityLevel || ''}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  setFitnessData(prev => ({ ...prev, activityLevel: e.target.value }));
-                }}
-              >
+                        onChange={(e) => setFitnessData(prev => ({ ...prev, activityLevel: e.target.value }))}
+                      >
                 <option value="">Select activity level</option>
-                <option value="sedentary">Sedentary</option>
-                <option value="lightly active">Lightly Active</option>
-                <option value="moderately active">Moderately Active</option>
-                <option value="very active">Very Active</option>
-              </select>
-            </div>
+                        <option value="sedentary">Sedentary</option>
+                        <option value="lightly active">Lightly Active</option>
+                        <option value="moderately active">Moderately Active</option>
+                        <option value="very active">Very Active</option>
+                      </select>
+                    </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-green-400">Injuries/Limitations</label>
-              <textarea
-                placeholder="e.g., None, knee pain, etc."
-                className="input-modern w-full min-h-[100px]"
+                      <input
+                        type="text"
+                        placeholder="e.g., None, knee pain, etc."
+                className="input-modern w-full"
                 value={fitnessData.injuries || ''}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                  setFitnessData(prev => ({ ...prev, injuries: e.target.value }));
-                }}
-              />
-            </div>
+                onChange={(e) => setFitnessData(prev => ({ ...prev, injuries: e.target.value }))}
+                      />
+                    </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-green-400">Dietary Restrictions</label>
-              <textarea
-                placeholder="e.g., None, vegetarian, etc."
-                className="input-modern w-full min-h-[100px]"
+                      <input
+                        type="text"
+                        placeholder="e.g., None, vegetarian, etc."
+                className="input-modern w-full"
                 value={fitnessData.dietaryRestrictions || ''}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                  setFitnessData(prev => ({ ...prev, dietaryRestrictions: e.target.value }));
-                }}
-              />
-            </div>
-          </div>
+                onChange={(e) => setFitnessData(prev => ({ ...prev, dietaryRestrictions: e.target.value }))}
+                      />
+                    </div>
+                </div>
           
           <div className="flex items-center justify-between">
             <div className="text-lg text-gray-300">
@@ -786,30 +757,28 @@ const GenerateProgramPage = () => {
                 {Object.keys(fitnessData).filter(key => fitnessData[key as keyof FitnessData]).length}
               </span>
               <span className="text-gray-400"> / 9 fields completed</span>
+              </div>
+            
+            <div className="flex justify-end">
+              <Button
+                onClick={handleGeneratePlan}
+                disabled={Object.keys(fitnessData).filter(key => fitnessData[key as keyof FitnessData]).length < 9 || isGenerating}
+                className="btn-modern text-lg px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGenerating ? 'Generating Plan...' : 'Generate Fitness & Diet Plan'}
+              </Button>
             </div>
           </div>
+          
+          {Object.keys(fitnessData).filter(key => fitnessData[key as keyof FitnessData]).length < 9 && (
+            <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+              <p className="text-yellow-400 text-center font-medium">
+                Please fill in all 9 fields to generate your plan
+              </p>
+                    </div>
+                  )}
         </Card>
 
-        {/*Generate Plan Button*/}
-        <div className="flex justify-center mb-12">
-          <Button
-            onClick={handleGeneratePlan}
-            disabled={Object.keys(fitnessData).filter(key => fitnessData[key as keyof FitnessData]).length < 9 || isGenerating}
-            className="btn-modern text-lg px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isGenerating ? 'Generating Plan...' : 'Generate Fitness & Diet Plan'}
-          </Button>
-        </div>
-
-        {Object.keys(fitnessData).filter(key => fitnessData[key as keyof FitnessData]).length < 9 && (
-          <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-            <p className="text-yellow-400 text-center font-medium">
-              Please fill in all 9 fields to generate your plan
-            </p>
-          </div>
-        )}
-
-        {/*Fitness Data Progress*/}
         {Object.keys(fitnessData).length > 0 && (
           <Card className="glass border-2 border-green-400/20 rounded-2xl p-6 mb-8 group hover:border-green-400/40 transition-all duration-500">
             <h3 className="text-2xl font-bold mb-6 gradient-text text-center">Information Collected</h3>
@@ -818,7 +787,7 @@ const GenerateProgramPage = () => {
                 <div key={key} className="glass border border-green-400/20 rounded-xl p-4 text-center group-hover:border-green-400/40 transition-all duration-300">
                   <div className="text-xs text-green-400 font-semibold uppercase tracking-wide mb-2">
                     {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </div>
+                </div>
                   <div className="text-white font-bold">{value}</div>
                 </div>
               ))}
@@ -837,8 +806,8 @@ const GenerateProgramPage = () => {
                   >
                     Generate My Fitness & Diet Plan
                   </Button>
-                </div>
-              )}
+              </div>
+            )}
             </div>
           </Card>
         )}
@@ -846,10 +815,10 @@ const GenerateProgramPage = () => {
         {/*Message Box*/}
         {messages.length > 0 && (
           <Card className="glass border-2 border-green-400/20 rounded-2xl p-6 mb-8 group hover:border-green-400/40 transition-all duration-500">
-            <div
-              ref={messageContainerRef}
+          <div
+            ref={messageContainerRef}
               className="h-80 overflow-y-auto space-y-4 scroll-smooth"
-            >
+          >
               {messages.map((msg, index) => (
                 <div key={index} className="message-item animate-fadeIn">
                   <div className="flex items-start gap-3">
@@ -859,10 +828,10 @@ const GenerateProgramPage = () => {
                         : "bg-gradient-to-br from-gray-400 to-gray-600 text-white"
                     }`}>
                       {msg.role === "assistant" ? "AI" : "U"}
-                    </div>
+                  </div>
                     <div className="flex-1">
                       <div className="font-semibold text-sm text-green-400 mb-1">
-                        {msg.role === "assistant" ? "FitAI Coach" : user ? [user.firstName, user.lastName].filter(Boolean).join(' ') || 'You' : 'You'}
+                        {msg.role === "assistant" ? "CodeFlex AI" : "You"}
                       </div>
                       <p className="text-white leading-relaxed">{msg.content}</p>
                     </div>
@@ -875,19 +844,19 @@ const GenerateProgramPage = () => {
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
                       <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                    </div>
+                </div>
                     <div className="flex-1">
                       <div className="font-semibold text-sm text-green-400 mb-1">System</div>
                       <p className="text-white">Generating your personalized fitness plan... Please wait.</p>
                     </div>
-                  </div>
-                </div>
+            </div>
+          </div>
               )}
             </div>
           </Card>
         )}
 
-        {/*Generated Plaan will be displayed here*/}
+        {/*Generated Plan will be displayed here*/}
         {generatedPlan && (
           <Card className="glass border-2 border-green-400/20 rounded-2xl p-8 mb-8 group hover:border-green-400/40 transition-all duration-500">
             <div className="flex justify-between items-center mb-8">
@@ -907,18 +876,22 @@ const GenerateProgramPage = () => {
               </h4>
               <div className="glass border border-green-400/20 rounded-xl p-6 mb-6">
                 <p className="text-xl font-medium text-center">
-                  {generatedPlan.dietPlan?.title}
-                </p>
-                <p className="text-center text-green-400">
-                  {generatedPlan.dietPlan?.daily_calories}
+                  Daily Calories: <span className="text-green-400 font-bold text-2xl">{generatedPlan.dietPlan?.dailyCalories || 'N/A'}</span>
                 </p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {generatedPlan.dietPlan?.meal_examples?.map((meal: MealExample, index: number) => (
-                  <div key={index} className="glass border border-green-400/20 rounded-xl p-6 mb-6">
-                    <h5 className="font-bold text-xl mb-4 text-green-400">{meal.meal}</h5>
-                    <p className="text-white">{meal.example}</p>
+                {generatedPlan.dietPlan?.meals?.map((meal, index: number) => (
+                  <div key={index} className="glass border border-green-400/20 rounded-xl p-6 hover:border-green-400/40 transition-all duration-300">
+                    <h5 className="font-bold text-xl mb-4 text-green-400">{meal.name}</h5>
+                    <ul className="space-y-3">
+                      {meal.foods?.map((food: string, foodIndex: number) => (
+                        <li key={foodIndex} className="flex items-center gap-3">
+                          <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                          <span className="text-white">{food}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 ))}
               </div>
@@ -931,26 +904,62 @@ const GenerateProgramPage = () => {
               </h4>
               <div className="glass border border-green-400/20 rounded-xl p-6 mb-6">
                 <p className="text-xl font-medium text-center">
-                  Program: <span className="text-green-400 font-bold">{generatedPlan.workoutPlan?.title || 'N/A'}</span>
+                  Schedule: <span className="text-green-400 font-bold">{generatedPlan.workoutPlan?.schedule?.join(', ') || 'N/A'}</span>
                 </p>
+              </div>
+              
+              <div className="space-y-6">
+                {generatedPlan.workoutPlan?.exercises?.map((day, index: number) => (
+                  <div key={index} className="glass border border-green-400/20 rounded-xl p-6 hover:border-green-400/40 transition-all duration-300">
+                    <h5 className="font-bold text-xl mb-4 text-green-400">{day.day}</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {day.routines?.map((routine, routineIndex: number) => (
+                        <div key={routineIndex} className="bg-black/20 border border-green-400/10 rounded-lg p-4">
+                          <p className="font-bold text-white mb-2">{routine.name}</p>
+                          <p className="text-green-400 text-sm">
+                            Sets: {routine.sets} | Reps: {routine.reps}
+                            {routine.duration && ` | Duration: ${routine.duration}`}
+                          </p>
+                          {routine.description && (
+                            <p className="text-gray-300 text-sm mt-2">{routine.description}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </Card>
         )}
 
-        {isGenerating && (
-          <div className="message-item animate-fadeIn">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold text-sm text-green-400 mb-1">System</div>
-                <p className="text-white">Generating your personalized fitness plan... Please wait.</p>
-              </div>
-            </div>
-          </div>
-        )}
+        <div className="text-center">
+          <Button
+            className={`text-2xl px-12 py-6 rounded-full font-bold transition-all duration-500 ${
+              callActive
+                ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-500/25"
+                : callEnded
+                  ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg shadow-green-500/25"
+                  : "bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 shadow-lg shadow-green-400/25"
+            } text-white relative group`}
+            onClick={toggleCall}
+            disabled={connecting || callEnded || isGenerating}
+          >
+            {connecting && (
+              <span className="absolute inset-0 rounded-full animate-ping bg-green-400/50 opacity-75"></span>
+            )}
+
+            <span className="relative z-10">
+              {callActive
+                ? "End Call"
+                : connecting
+                  ? "Connecting..."
+                  : callEnded
+                    ? "Complete"
+                    : "Start Voice Call"}
+            </span>
+          </Button>
+        </div>
       </div>
     </div>
   );
