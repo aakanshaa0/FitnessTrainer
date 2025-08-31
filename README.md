@@ -26,8 +26,8 @@ A Next.js application that generates personalized fitness programs using AI. The
 
 1. Clone the repository
 ```bash
-git clone <repository-url>
-cd fitness
+git clone [<repository-url>](https://github.com/aakanshaa0/FitnessTrainer.git)
+cd FitnessTrainer
 ```
 
 2. Install dependencies
