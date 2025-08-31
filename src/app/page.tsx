@@ -9,9 +9,9 @@ import { USER_PROGRAMS } from "@/constants";
 const HomePage = () => {
 
   return (
-    <div className="flex flex-col min-h-screen text-foreground overflow-hidden">
-      <section className="relative z-10 pt-24 pb-16 flex-grow">
-        <div className="container mx-auto px-4">
+    <div className="flex flex-col min-h-screen text-foreground overflow-hidden w-full">
+      <section className="relative z-10 pt-24 pb-16 flex-grow px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative">
             <div className="absolute -top-10 left-0 w-40 h-40 border-l-2 border-t-2" />
 
@@ -108,8 +108,8 @@ const HomePage = () => {
       </section>
 
       {/*How It Works Section*/}
-      <section className="py-20 bg-cyber-black/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4">
+      <section className="py-20 bg-cyber-black/50 backdrop-blur-sm px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto">
           <h2 className="text-4xl font-bold text-center mb-16">How It Works</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="p-6 border border-border rounded-lg">
@@ -132,11 +132,11 @@ const HomePage = () => {
       </section>
 
       {/*Success Stories*/}
-      <section className="py-20 relative overflow-hidden">
+      <section className="py-20 relative overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,136,0.05)_0%,rgba(0,0,0,0)_70%)]"></div>
         </div>
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Real People, Real Results</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Join thousands who&apos;ve transformed their lives with our AI-powered fitness programs</p>
@@ -226,8 +226,8 @@ const HomePage = () => {
       </section>
 
       {/*Programs Display Section*/}
-      <section className="py-16 bg-gradient-to-b from-background to-muted/20">
-        <div className="container mx-auto px-4">
+      <section className="py-16 bg-gradient-to-b from-background to-muted/20 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-foreground mb-4">Featured Fitness Programs</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
