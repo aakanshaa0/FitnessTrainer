@@ -565,7 +565,7 @@ const GenerateProgramPage = () => {
                 </div>
               </div>
 
-              <h2 className="text-2xl font-bold text-white mb-2 neon-text">CodeFlex AI</h2>
+              <h2 className="text-2xl font-bold text-white mb-2 neon-text">FitAI</h2>
               <p className="text-green-400 font-medium">Fitness & Diet Coach</p>
 
               <div
@@ -831,7 +831,7 @@ const GenerateProgramPage = () => {
                   </div>
                     <div className="flex-1">
                       <div className="font-semibold text-sm text-green-400 mb-1">
-                        {msg.role === "assistant" ? "CodeFlex AI" : "You"}
+                        {msg.role === "assistant" ? "FitAI" : "You"}
                       </div>
                       <p className="text-white leading-relaxed">{msg.content}</p>
                     </div>
